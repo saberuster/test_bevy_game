@@ -1,0 +1,15 @@
+[package]
+name = "test_bevy_game"
+version = "0.1.0"
+authors = ["saberuster <saberuster@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+#bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
+# main 分支合并新加的 pbr 代码导致 wgpu 调用有bug，这里用最近的可用版本先用一下
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "b6be8a5314e027a0b0f3ee48d04c14b52fe74676" }
+kcp = {git = "https://github.com/Matrix-Zhang/kcp", branch = "master" }
+tokio = { version = "1", features = ["full"] }
+rand = "0.8.0"

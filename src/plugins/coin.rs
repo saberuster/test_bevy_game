@@ -49,18 +49,18 @@ fn spawn_new_event_listener_system(
     rules: Res<GameRules>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let mut rng = thread_rng();
     events.iter().for_each(|_| {
         commands
             .spawn((Coin,))
             .with_bundle((CoinInfo {
-                score_value: rng.gen_range(rules.min_coin_score_value..rules.max_coin_score_value),
+                score_value: rand::thread_rng()
+                    .gen_range(rules.min_coin_score_value..rules.max_coin_score_value),
             },))
             .with_bundle(SpriteBundle {
                 material: materials.add(Color::GOLD.into()),
                 transform: Transform::from_xyz(
-                    rng.gen_range(-300.0..300.0),
-                    rng.gen_range(-300.0..300.0),
+                    rand::thread_rng().gen_range(-300.0..300.0),
+                    rand::thread_rng().gen_range(-300.0..300.0),
                     0.0,
                 ),
                 sprite: Sprite::new(Vec2::new(50.0, 50.0)),

@@ -3,7 +3,7 @@ use super::{
     player::IncreasePlayerScoreEvent,
 };
 use bevy::{prelude::*, utils::HashMap};
-use rand::{thread_rng, Rng};
+use rand::Rng;
 pub struct CoinPlugin;
 
 impl Plugin for CoinPlugin {
@@ -51,12 +51,13 @@ fn spawn_new_event_listener_system(
 ) {
     events.iter().for_each(|_| {
         commands
-            .spawn((Coin,))
-            .with_bundle((CoinInfo {
+            .spawn()
+            .insert_bundle((Coin,))
+            .insert_bundle((CoinInfo {
                 score_value: rand::thread_rng()
                     .gen_range(rules.min_coin_score_value..rules.max_coin_score_value),
             },))
-            .with_bundle(SpriteBundle {
+            .insert_bundle(SpriteBundle {
                 material: materials.add(Color::GOLD.into()),
                 transform: Transform::from_xyz(
                     rand::thread_rng().gen_range(-300.0..300.0),
@@ -73,7 +74,7 @@ fn update_system() {}
 
 fn gameover_system(mut commands: Commands, query: Query<Entity, With<Coin>>) {
     query.for_each(|e| {
-        commands.despawn(e);
+        commands.entity(e).despawn();
     });
 }
 
@@ -93,7 +94,7 @@ fn pickedup_event_listener_system(
                     player: event.player,
                     score_to_increase: coin_info.score_value,
                 });
-                commands.despawn(coin);
+                commands.entity(coin).despawn();
                 spawn_coin_event.send(NewCoinSpawnedEvent {});
             }
         });

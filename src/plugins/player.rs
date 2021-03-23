@@ -72,8 +72,9 @@ fn setup(
 ) {
     let player_color = Color::rgb(0.5, 0.5, 1.0);
     commands
-        .spawn((Player,))
-        .with_bundle((
+        .spawn()
+        .insert_bundle((Player,))
+        .insert_bundle((
             PlayerInfo {
                 name: "Player 0".to_string(),
                 // color: player_color,
@@ -85,7 +86,7 @@ fn setup(
                 pendding_offset: Default::default(),
             },
         ))
-        .with_bundle(SpriteBundle {
+        .insert_bundle(SpriteBundle {
             material: materials.add(player_color.into()),
             transform: Transform::from_xyz(0.0, -215.0, 0.0),
             sprite: Sprite::new(rules.player_brick_size),

@@ -26,10 +26,12 @@ struct ElapsedTimeUI;
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>, rules: Res<GameRules>) {
     let font = asset_server.load(rules.font_path);
     commands
-        .spawn(OrthographicCameraBundle::new_2d())
-        .spawn(UiCameraBundle::default());
+        .spawn()
+        .insert_bundle(OrthographicCameraBundle::new_2d());
+    commands.spawn().insert_bundle(UiCameraBundle::default());
     commands
-        .spawn(TextBundle {
+        .spawn()
+        .insert_bundle(TextBundle {
             style: Style {
                 align_self: AlignSelf::FlexEnd,
                 position_type: PositionType::Absolute,
@@ -60,10 +62,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, rules: Res<Game
             },
             ..Default::default()
         })
-        .with(ScoreUI);
+        .insert(ScoreUI);
 
     commands
-        .spawn(TextBundle {
+        .spawn()
+        .insert_bundle(TextBundle {
             style: Style {
                 align_self: AlignSelf::FlexEnd,
                 position_type: PositionType::Absolute,
@@ -89,7 +92,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, rules: Res<Game
             ),
             ..Default::default()
         })
-        .with(ElapsedTimeUI);
+        .insert(ElapsedTimeUI);
 }
 
 fn score_ui_system(
@@ -131,7 +134,8 @@ fn gameover_ui_system(
 ) {
     let font = asset_server.load(rules.font_path);
     commands
-        .spawn(TextBundle {
+        .spawn()
+        .insert_bundle(TextBundle {
             style: Style {
                 align_self: AlignSelf::FlexEnd,
                 position_type: PositionType::Absolute,
@@ -157,7 +161,7 @@ fn gameover_ui_system(
             ),
             ..Default::default()
         })
-        .with(GameOverUI);
+        .insert(GameOverUI);
 }
 
 fn elapsed_time_ui_system(

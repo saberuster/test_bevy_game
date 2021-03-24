@@ -160,40 +160,38 @@ fn player_collision_system(
 }
 
 fn player_score_update_system(
-    query: Query<(Entity, &mut Score, &PlayerInfo, &Team), With<Player>>,
+    mut query: Query<(Entity, &mut Score, &PlayerInfo, &Team), With<Player>>,
     mut events: EventReader<IncreasePlayerScoreEvent>,
     mut team_score_changed_event: EventWriter<TeamScoreChangedEvent>,
 ) {
-    let mut score_map = HashMap::new();
     let mut team_score_map = HashMap::new();
 
-    events.iter().for_each(|event| {
-        let waiting_increase = score_map.entry(event.player).or_insert(0usize);
-        *waiting_increase += event.score_to_increase;
-    });
+    events.iter().for_each(
+        |IncreasePlayerScoreEvent {
+             player,
+             score_to_increase,
+         }| {
+            match query.get_mut(*player) {
+                Ok((_, mut score, _, team)) => {
+                    score.val += score_to_increase;
+                    team_score_map.insert(team.id, 0);
+                }
+                Err(e) => error!("{}", e),
+            }
+        },
+    );
 
-    query.for_each_mut(|(player, mut score, player_info, team)| {
-        let team_score = team_score_map.entry(team.id).or_insert((0usize, false));
-        match score_map.get(&player) {
-            Some(increas_score) => {
-                score.val += increas_score;
-                info!("{} get coin, {} score now!", player_info.name, score.val);
-                *team_score = (team_score.0 + score.val, true);
-            }
-            None => {
-                *team_score = (team_score.0 + score.val, team_score.1);
-            }
+    query.for_each_mut(|(_, score, player_info, team)| {
+        if let Some(team_score) = team_score_map.get_mut(&team.id) {
+            *team_score += score.val;
+            info!("{} get coin, {} score now!", player_info.name, score.val);
         }
     });
 
-    team_score_map
-        .iter()
-        .for_each(|(team_id, (team_score, is_changed))| {
-            if *is_changed {
-                team_score_changed_event.send(TeamScoreChangedEvent {
-                    team_id: *team_id,
-                    team_score: *team_score,
-                });
-            }
+    team_score_map.iter().for_each(|(team_id, team_score)| {
+        team_score_changed_event.send(TeamScoreChangedEvent {
+            team_id: *team_id,
+            team_score: *team_score,
         });
+    });
 }

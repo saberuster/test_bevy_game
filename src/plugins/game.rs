@@ -32,8 +32,8 @@ impl PluginGroup for TestNetGamePlugins {
 pub struct GameRules {
     // Gameplay
     pub max_coin_num: usize,         // 可同时存在的最大硬币数量
-    pub min_player_num: usize,       // 可以开始游戏的最小玩家数量(小于该数量不会开始游戏)
-    pub max_player_num: usize,       // 游戏最大容纳的玩家数量
+    pub min_player_num: usize,       // 可以开始游戏的最小玩家数量(小于该数量不会开始游戏) (未实现)
+    pub max_player_num: usize,       // 游戏最大容纳的玩家数量 (未实现)
     pub target_score: usize,         // 得到 target_score 分数以上游戏结束
     pub min_coin_score_value: usize, // 单枚金币最x小价值
     pub max_coin_score_value: usize, // 单枚金币最大价值

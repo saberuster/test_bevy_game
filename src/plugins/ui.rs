@@ -1,5 +1,5 @@
 use super::{
-    elapsed_time::OnElapsedSecondChangedEvent,
+    elapsed_time::ElapsedSecondChangedEvent,
     game::{GameRules, GameState, MatchState},
     player::TeamScoreChangedEvent,
 };
@@ -98,29 +98,19 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, rules: Res<Game
 fn score_ui_system(
     mut events: EventReader<TeamScoreChangedEvent>,
     mut query: Query<&mut Text, With<ScoreUI>>,
-    asset_server: Res<AssetServer>,
-    rules: Res<GameRules>,
 ) {
     if let Ok(mut text) = query.single_mut() {
-        let mut clear = false;
-        events.iter().for_each(
-            |TeamScoreChangedEvent {
-                 team_score,
-                 team_id,
-             }| {
-                if !clear {
-                    text.sections.clear();
-                    clear = true;
+        events.iter().enumerate().for_each(
+            |(
+                i,
+                TeamScoreChangedEvent {
+                    team_score,
+                    team_id,
+                },
+            )| {
+                if let Some(section) = text.sections.get_mut(i) {
+                    section.value = format!(" |team {}: {} ", team_id, team_score);
                 }
-                let font = asset_server.load(rules.font_path);
-                text.sections.push(TextSection {
-                    value: format!(" |team {}: {} ", team_id, team_score),
-                    style: TextStyle {
-                        font,
-                        font_size: rules.font_size,
-                        color: Color::RED,
-                    },
-                });
             },
         );
     }
@@ -165,29 +155,16 @@ fn gameover_ui_system(
 }
 
 fn elapsed_time_ui_system(
-    mut events: EventReader<OnElapsedSecondChangedEvent>,
+    mut events: EventReader<ElapsedSecondChangedEvent>,
     mut query: Query<&mut Text, With<ElapsedTimeUI>>,
-    asset_server: Res<AssetServer>,
-    rules: Res<GameRules>,
 ) {
     if let Ok(mut text) = query.single_mut() {
-        let mut clear = false;
         events
             .iter()
-            .for_each(|OnElapsedSecondChangedEvent { seconds }| {
-                if !clear {
-                    text.sections.clear();
-                    clear = true;
+            .for_each(|ElapsedSecondChangedEvent { seconds }| {
+                if let Some(section) = text.sections.get_mut(0) {
+                    section.value = format!("elapsed time: {}", seconds);
                 }
-                let font = asset_server.load(rules.font_path);
-                text.sections.push(TextSection {
-                    value: format!("elapsed time: {}", seconds),
-                    style: TextStyle {
-                        font,
-                        font_size: rules.font_size,
-                        color: Color::GREEN,
-                    },
-                });
             });
     }
 }

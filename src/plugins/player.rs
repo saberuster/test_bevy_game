@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use super::coin::Coin;
-use super::coin::OnCoinPickedupEvent;
+use super::coin::CoinInfo;
+use super::coin::CoinPickedupEvent;
 use super::game::GameRules;
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 pub struct PlayerPlugin;
@@ -49,7 +50,6 @@ pub struct Player;
 
 struct PlayerInfo {
     name: String, // 玩家名称
-                  // color: Color, // 玩家颜色
 }
 
 struct Team {
@@ -129,28 +129,34 @@ fn player_movement_system(mut query: Query<(&mut Movement, &mut Transform), With
 
 fn player_collision_system(
     player_query: Query<(Entity, &PlayerInfo, &Transform, &Team, &Sprite), With<Player>>,
-    collision_query: Query<(Entity, &Transform, &Sprite), With<Coin>>,
-    mut coin_pickedup_event: EventWriter<OnCoinPickedupEvent>,
+    collision_query: Query<(Entity, &Transform, &Sprite, &CoinInfo), With<Coin>>,
+    mut coin_pickedup_event: EventWriter<CoinPickedupEvent>,
+    mut increase_score_event: EventWriter<IncreasePlayerScoreEvent>,
 ) {
-    collision_query.for_each(|(coin_entity, pickup_transform, pickup_sprite)| {
-        for (player_entity, player, player_transform, _, player_sprite) in player_query.iter() {
-            let collision = collide(
-                player_transform.translation,
-                player_sprite.size,
-                pickup_transform.translation,
-                pickup_sprite.size,
-            );
+    collision_query.for_each(
+        |(coin_entity, pickup_transform, pickup_sprite, coin_info)| {
+            for (player_entity, player, player_transform, _, player_sprite) in player_query.iter() {
+                let collision = collide(
+                    player_transform.translation,
+                    player_sprite.size,
+                    pickup_transform.translation,
+                    pickup_sprite.size,
+                );
 
-            if let Some(_) = collision {
-                debug!("{} collect the coin!", player.name);
-                coin_pickedup_event.send(OnCoinPickedupEvent {
-                    coin: coin_entity,
-                    player: player_entity,
-                });
-                break;
+                if let Some(_) = collision {
+                    debug!("{} collect the coin!", player.name);
+
+                    increase_score_event.send(IncreasePlayerScoreEvent {
+                        player: player_entity,
+                        score_to_increase: coin_info.score_value,
+                    });
+
+                    coin_pickedup_event.send(CoinPickedupEvent { coin: coin_entity });
+                    break;
+                }
             }
-        }
-    });
+        },
+    );
 }
 
 fn player_score_update_system(

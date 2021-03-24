@@ -13,6 +13,11 @@ pub enum MatchState {
     GameOver,
 }
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, StageLabel)]
+pub enum GameStage {
+    EventHandle, // 事件处理统一注册Stage
+}
+
 pub struct TestNetGamePlugins;
 
 impl PluginGroup for TestNetGamePlugins {
@@ -47,13 +52,18 @@ struct GameCorePlugin;
 
 impl Plugin for GameCorePlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_state(MatchState::WaitingForBegin)
-            .init_resource::<GameRules>()
-            .init_resource::<GameState>()
-            .init_resource::<GameDelayStart>()
-            .add_startup_system(game_init_system.system())
-            .add_system(game_state_update_system.system())
-            .add_system(delay_start_update_system.system());
+        app.add_stage_after(
+            CoreStage::First,
+            GameStage::EventHandle,
+            SystemStage::parallel(),
+        )
+        .add_state(MatchState::WaitingForBegin)
+        .init_resource::<GameRules>()
+        .init_resource::<GameState>()
+        .init_resource::<GameDelayStart>()
+        .add_startup_system(game_init_system.system())
+        .add_system(game_state_update_system.system())
+        .add_system(delay_start_update_system.system());
     }
 }
 

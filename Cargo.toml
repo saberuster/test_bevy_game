@@ -7,9 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
 bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
 kcp = {git = "https://github.com/Matrix-Zhang/kcp", branch = "master" }
-tokio = { version = "1", features = ["full"] }
 rand = "0.8.0"
-socket2 = {git="https://github.com/rust-lang/socket2", branch="master"}

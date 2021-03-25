@@ -3,10 +3,11 @@ use bevy::prelude::*;
 
 use super::coin::CoinPlugin;
 use super::elapsed_time::ElapsedTimePlugin;
+use super::input_ext::InputExtPlugin;
 use super::player::*;
 use super::ui::UiPlugin;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug, Hash)]
 pub enum MatchState {
     WaitingForBegin,
     Playing,
@@ -23,6 +24,7 @@ pub struct TestNetGamePlugins;
 impl PluginGroup for TestNetGamePlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group.add(GameCorePlugin);
+        group.add(InputExtPlugin);
         group.add(PlayerPlugin);
         group.add(CoinPlugin);
         group.add(ElapsedTimePlugin);

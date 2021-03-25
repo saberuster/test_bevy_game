@@ -1,14 +1,20 @@
 use std::collections::HashMap;
 
-use super::coin::Coin;
-use super::coin::CoinInfo;
 use super::coin::CoinPickedupEvent;
 use super::game::GameRules;
+use super::{coin::Coin, input_ext::PlayerOperate};
+use super::{coin::CoinInfo, input_ext::PlayerInputSettings};
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut AppBuilder) {
+        app.insert_resource(PlayerInputSettings::from_array(&vec![
+            (KeyCode::W, PlayerOperate::MoveFrond),
+            (KeyCode::S, PlayerOperate::MoveBack),
+            (KeyCode::A, PlayerOperate::MoveLeft),
+            (KeyCode::D, PlayerOperate::MoveRight),
+        ]));
         app.add_event::<IncreasePlayerScoreEvent>()
             .add_event::<TeamScoreChangedEvent>()
             .add_startup_system(setup.system())
@@ -95,22 +101,22 @@ fn setup(
 }
 
 fn player_input_system(
-    input: Res<Input<KeyCode>>,
+    input: Res<Input<PlayerOperate>>,
     time: Res<Time>,
     mut query: Query<&mut Movement, With<Player>>,
 ) {
     if let Ok(mut movement) = query.single_mut() {
         let mut direction = Vec2::new(0.0, 0.0);
-        if input.pressed(KeyCode::W) {
+        if input.pressed(PlayerOperate::MoveFrond) {
             direction.y += 1.0;
         }
-        if input.pressed(KeyCode::S) {
+        if input.pressed(PlayerOperate::MoveBack) {
             direction.y += -1.0;
         }
-        if input.pressed(KeyCode::A) {
+        if input.pressed(PlayerOperate::MoveLeft) {
             direction.x += -1.0;
         }
-        if input.pressed(KeyCode::D) {
+        if input.pressed(PlayerOperate::MoveRight) {
             direction.x += 1.0;
         }
         let speed = movement.speed;
@@ -144,7 +150,7 @@ fn player_collision_system(
                 );
 
                 if let Some(_) = collision {
-                    debug!("{} collect the coin!", player.name);
+                    debug!("{} collect the coin({:?})!", player.name, coin_entity);
 
                     increase_score_event.send(IncreasePlayerScoreEvent {
                         player: player_entity,

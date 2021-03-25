@@ -47,7 +47,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, rules: Res<Game
             text: Text {
                 // Construct a `Vec` of `TextSection`s
                 sections: vec![TextSection {
-                    value: "no team score".into(),
+                    value: " |team 1: 0 ".into(),
                     style: TextStyle {
                         font: font.clone(),
                         font_size: rules.font_size,
